@@ -1,7 +1,12 @@
 FROM python:3.13-alpine3.21
 
+WORKDIR /app
+
+COPY update.sh .
+
 RUN apk add --no-cache \
-    aws-cli
+    aws-cli \
+    dialog
 
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir awsebcli
@@ -9,4 +14,4 @@ RUN pip install --no-cache-dir --upgrade pip \
 # Verify
 RUN aws --version && eb --version
 
-ENTRYPOINT ["sh"]
+CMD ["sh", "update.sh"]
