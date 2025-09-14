@@ -2,7 +2,7 @@ FROM python:3.13-alpine3.21
 
 WORKDIR /app
 
-COPY update.sh .
+COPY scripts/ .
 
 RUN apk add --no-cache \
     aws-cli \
@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir --upgrade pip \
 # Verify
 RUN aws --version && eb --version
 
-CMD ["sh", "update.sh"]
+CMD ["sh", "main.sh"]
