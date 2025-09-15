@@ -2,5 +2,6 @@
 
 . home.sh
 . versions.sh
+. update.sh
 
 home

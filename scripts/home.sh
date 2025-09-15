@@ -9,7 +9,7 @@ home() {
     3 "Exit")
 
   case $choice in
-    1) eb platform use --latest ;;
+    1) configure_aws ;;
     2) show_versions ;;
     3) clear; exit ;;
   esac
