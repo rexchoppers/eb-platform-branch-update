@@ -11,4 +11,6 @@ show_versions() {
 
   dialog --title "CLI Versions" \
          --msgbox "$versions" 15 60
+
+  home
 }
