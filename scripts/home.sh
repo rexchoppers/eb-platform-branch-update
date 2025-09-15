@@ -2,15 +2,15 @@
 
 home() {
   choice=$(dialog --clear --stdout \
-    --title "Page 1: Elastic Beanstalk" \
+    --title "EB Platform Branch Update" \
     --menu "Choose an action:" 15 50 5 \
     1 "Update Platform Branch" \
-    2 "Go to Config Page" \
+    2 "Show Versions" \
     3 "Exit")
 
   case $choice in
     1) eb platform use --latest ;;
-    2) page2 ;;   # jump to next page
+    2) show_versions ;;
     3) clear; exit ;;
   esac
 }
