@@ -9,17 +9,19 @@ platform=""
 
 # Dialogue to ask for AWS credentials and region, then configure AWS CLI
 configure_aws() {
+  # If any dialog is canceled (non-zero exit), return to home
+  # Note: 'home' is defined in home.sh and this file is sourced by main.sh alongside home.sh
   access_key_id=$(dialog --clear --stdout \
     --title "AWS CLI: Configuration" \
-    --inputbox "Enter your AWS Access Key ID:" 8 50)
+    --inputbox "Enter your AWS Access Key ID:" 8 50) || { home; return; }
 
   secret_access_key=$(dialog --clear --stdout \
     --title "AWS CLI: Configuration" \
-    --inputbox "Enter your AWS Secret Access Key:" 8 50)
+    --inputbox "Enter your AWS Secret Access Key:" 8 50) || { home; return; }
 
   region=$(dialog --clear --stdout \
     --title "AWS CLI: Configuration" \
-    --inputbox "Enter your AWS Region (e.g., us-west-2):" 8 50)
+    --inputbox "Enter your AWS Region (e.g., us-west-2):" 8 50) || { home; return; }
 
   # Configure AWS CLI with the provided credentials and region
   aws configure set aws_access_key_id "$access_key_id"
@@ -42,11 +44,11 @@ configure_aws() {
 configure_eb() {
   app_name=$(dialog --clear --stdout \
     --title "EB CLI: Configuration" \
-    --inputbox "Enter your Elastic Beanstalk Application Name:" 8 50)
+    --inputbox "Enter your Elastic Beanstalk Application Name:" 8 50) || { home; return; }
 
   platform=$(dialog --clear --stdout \
     --title "EB CLI: Configuration" \
-    --inputbox "Enter the Platform (e.g., node.js, python, docker):" 8 50)
+    --inputbox "Enter the Platform (e.g., node.js, python, docker):" 8 50) || { home; return; }
 
   # Capture EB CLI output/errors
   if output=$(eb init "$app_name" --region "$region" --platform "$platform" 2>&1); then
