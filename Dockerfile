@@ -4,11 +4,12 @@ WORKDIR /app
 
 RUN apk add --no-cache \
     aws-cli \
-    dialog
+    dialog \
+    bash
 
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir awsebcli
 
 COPY scripts/ .
 
-CMD ["sh", "main.sh"]
+CMD ["bash", "main.sh"]
