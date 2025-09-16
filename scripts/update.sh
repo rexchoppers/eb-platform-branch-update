@@ -126,3 +126,43 @@ select_eb_platform() {
     return 1
   fi
 }
+
+# Global variable for environment
+env_name=""
+
+select_eb_environment() {
+  # Get environments for the selected application
+  envs=$(aws elasticbeanstalk describe-environments \
+    --application-name "$app_name" \
+    --query "Environments[].EnvironmentName" \
+    --output text 2>/tmp/eb_envs_error)
+
+  if [ $? -ne 0 ] || [ -z "$envs" ]; then
+    dialog --title "EB CLI: Error" \
+           --msgbox "Could not fetch environments for application: $app_name\n\n$(cat /tmp/eb_envs_error)" 12 70
+    rm -f /tmp/eb_envs_error
+    home
+    return 1
+  fi
+  rm -f /tmp/eb_envs_error
+
+  # Build menu options (label + description pairs)
+  env_menu=()
+  for env in $envs; do
+    env_menu+=("$env" "Environment in $app_name")
+  done
+
+  # Show dialog menu
+  env_name=$(dialog --clear --stdout \
+    --title "Select EB Environment" \
+    --menu "Choose an Elastic Beanstalk Environment:" 15 70 5 \
+    "${env_menu[@]}") || { home; return 1; }
+
+  if [ -n "$env_name" ]; then
+    dialog --title "EB CLI" \
+           --msgbox "Selected Environment: $env_name" 8 50
+  else
+    home
+    return 1
+  fi
+}
