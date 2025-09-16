@@ -48,12 +48,11 @@ configure_eb() {
     --title "EB CLI: Configuration" \
     --inputbox "Enter the Platform (e.g., node.js, python, docker):" 8 50)
 
-  # Use global $region from configure_aws
-  eb init "$app_name" --region "$region" --platform "$platform"
-
-  if [ $? -eq 0 ]; then
-    dialog --title "EB CLI" --msgbox "Elastic Beanstalk configured successfully!" 8 40
+  # Capture EB CLI output/errors
+  if output=$(eb init "$app_name" --region "$region" --platform "$platform" 2>&1); then
+    dialog --title "EB CLI" --msgbox "Elastic Beanstalk configured successfully" 8 50
+    select_version
   else
-    dialog --title "EB CLI" --msgbox "Error configuring Elastic Beanstalk." 8 40
+    dialog --title "EB CLI: Error" --msgbox "Failed to configure EB.\n\n$output" 15 70
   fi
 }
