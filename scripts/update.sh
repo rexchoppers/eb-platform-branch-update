@@ -94,9 +94,8 @@ select_eb_application() {
 }
 
 select_eb_platform() {
-  platforms=$(aws elasticbeanstalk list-platform-versions \
-    --query "PlatformSummaryList[].PlatformName" \
-    --output text 2>/tmp/eb_platforms_error | sort -u)
+  # Get platform list using EB CLI
+  platforms=$(eb platform list --region "$region" 2>/tmp/eb_platforms_error | grep -v "^\s*$")
 
   if [ $? -ne 0 ] || [ -z "$platforms" ]; then
     dialog --title "EB CLI: Error" \
@@ -107,14 +106,16 @@ select_eb_platform() {
   fi
   rm -f /tmp/eb_platforms_error
 
+  # Build menu options (each platform as an option)
   platform_menu=()
-  for plat in $platforms; do
-    platform_menu+=("$plat" "Elastic Beanstalk Platform")
-  done
+  while IFS= read -r plat; do
+    platform_menu+=("$plat" "")
+  done <<< "$platforms"
 
+  # Show dialog menu
   platform=$(dialog --clear --stdout \
     --title "Select EB Platform" \
-    --menu "Choose an Elastic Beanstalk Platform:" 20 70 10 \
+    --menu "Choose an Elastic Beanstalk Platform:" 20 90 15 \
     "${platform_menu[@]}") || { home; return 1; }
 
   if [ -n "$platform" ]; then
