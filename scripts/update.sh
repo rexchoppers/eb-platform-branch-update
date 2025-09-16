@@ -8,6 +8,8 @@ app_name=""
 platform=""
 env_name=""
 
+timestamp=$(date +"%Y%m%d%H%M%S")
+
 # Master flow
 update() {
   configure_aws        || { home; return; }
@@ -15,6 +17,24 @@ update() {
   select_eb_platform    || { home; return; }
   configure_eb          || { home; return; }
   select_eb_environment || { home; return; }
+  download_config     || { home; return; }
+}
+
+# Download configuration file from EB environment
+download_config() {
+  dialog --title "EB CLI" --infobox "Downloading configuration for $env_name...\nPlease wait." 6 60
+  sleep 1
+
+  if output=$(eb config save "$env_name" --cfg "$env_name-$timestamp" 2>&1); then
+    dialog --title "EB CLI" \
+           --infobox "Configuration downloaded.\nSaved as: $env_name-$timestamp.cfg.yml" 6 60
+    sleep 2
+    return 0
+  else
+    dialog --title "EB CLI: Error" \
+           --msgbox "Failed to save configuration.\n\n$output" 15 70
+    return 1
+  fi
 }
 
 
