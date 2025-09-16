@@ -45,13 +45,8 @@ configure_aws() {
 }
 
 configure_eb() {
-  # Let user select EB Application first
   select_eb_application || return
-
-  # Then ask for Platform
-  platform=$(dialog --clear --stdout \
-    --title "EB CLI: Configuration" \
-    --inputbox "Enter the Platform (e.g., node.js, python, docker):" 8 50) || { home; return; }
+  select_eb_platform || return
 
   # Capture EB CLI output/errors
   if output=$(eb init "$app_name" --region "$region" --platform "$platform" 2>&1); then
@@ -92,6 +87,39 @@ select_eb_application() {
   if [ -n "$app_name" ]; then
     dialog --title "EB CLI" \
            --msgbox "Selected Application: $app_name" 8 50
+  else
+    home
+    return 1
+  fi
+}
+
+select_eb_platform() {
+  platforms=$(aws elasticbeanstalk list-platform-versions \
+    --query "PlatformSummaryList[].PlatformName" \
+    --output text 2>/tmp/eb_platforms_error | sort -u)
+
+  if [ $? -ne 0 ] || [ -z "$platforms" ]; then
+    dialog --title "EB CLI: Error" \
+           --msgbox "Could not fetch platforms.\n\n$(cat /tmp/eb_platforms_error)" 12 70
+    rm -f /tmp/eb_platforms_error
+    home
+    return 1
+  fi
+  rm -f /tmp/eb_platforms_error
+
+  platform_menu=()
+  for plat in $platforms; do
+    platform_menu+=("$plat" "Elastic Beanstalk Platform")
+  done
+
+  platform=$(dialog --clear --stdout \
+    --title "Select EB Platform" \
+    --menu "Choose an Elastic Beanstalk Platform:" 20 70 10 \
+    "${platform_menu[@]}") || { home; return 1; }
+
+  if [ -n "$platform" ]; then
+    dialog --title "EB CLI" \
+           --msgbox "Selected Platform: $platform" 8 50
   else
     home
     return 1
