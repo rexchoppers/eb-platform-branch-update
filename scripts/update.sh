@@ -7,6 +7,7 @@ region=""
 app_name=""
 platform=""
 env_name=""
+current_platform_arn=""
 
 timestamp=$(date +"%Y%m%d%H%M%S")
 
@@ -23,7 +24,7 @@ update() {
 
 # Extract current platform ARN from downloaded config
 extract_current_platform_arn() {
-  platform_arn=$(awk '
+  current_platform_arn=$(awk '
     $1 == "PlatformArn:" {
       val=$2;
       for (i=3; i<=NF; i++) val=val " " $i;
@@ -36,12 +37,9 @@ extract_current_platform_arn() {
       exit
     }' ".elasticbeanstalk/saved_configs/$env_name-$timestamp.cfg.yml")
 
-    # Output to file for debugging
-    echo "Extracted Platform ARN: $platform_arn" > debug_platform_arn.txt
-
-  if [ -n "$platform_arn" ]; then
+  if [ -n "$current_platform_arn" ]; then
     dialog --title "EB CLI" \
-           --msgbox "Current Platform ARN:\n$platform_arn" 10 70
+           --msgbox "Current Platform ARN:\n$current_platform_arn" 10 70
     return 0
   else
     dialog --title "EB CLI: Error" \
