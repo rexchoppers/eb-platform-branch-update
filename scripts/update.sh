@@ -19,8 +19,6 @@ update() {
   select_eb_environment || { home; return; }
   download_config     || { home; return; }
   extract_current_platform_arn || { home; return; }
-
-  # output_config || { home; return; }
 }
 
 # Extract current platform ARN from downloaded config
@@ -38,20 +36,8 @@ extract_current_platform_arn() {
       exit
     }' "$env_name-$timestamp.cfg.yml")
 
-  if [ -n "$platform_arn" ]; then
-    dialog --title "EB CLI" \
-           --msgbox "Current Platform ARN:\n$platform_arn" 10 70
-    return 0
-  else
-    dialog --title "EB CLI: Error" \
-           --msgbox "Could not extract Platform ARN from configuration." 10 70
-    return 1
-  fi
-}
-
-# Extract current platform ARN from downloaded config
-extract_current_platform_arn() {
-  platform_arn=$(grep 'PlatformArn:' "$env_name-$timestamp.cfg.yml" | awk '{print $2}')
+    # Output to file for debugging
+    echo "Extracted Platform ARN: $platform_arn" > debug_platform_arn.txt
 
   if [ -n "$platform_arn" ]; then
     dialog --title "EB CLI" \
