@@ -18,13 +18,51 @@ update() {
   configure_eb          || { home; return; }
   select_eb_environment || { home; return; }
   download_config     || { home; return; }
-  output_config || { home; return; }
+  extract_current_platform_arn || { home; return; }
+
+  # output_config || { home; return; }
 }
 
-output_config() {
-  cat "$env_name-$timestamp.cfg.yml"
+# Extract current platform ARN from downloaded config
+extract_current_platform_arn() {
+  platform_arn=$(awk '
+    $1 == "PlatformArn:" {
+      val=$2;
+      for (i=3; i<=NF; i++) val=val " " $i;
+      getline;
+      while ($1 == "" || $1 ~ /^Amazon/) {  # continuation lines
+        for (i=1; i<=NF; i++) val=val " " $i;
+        getline;
+      }
+      print val;
+      exit
+    }' "$env_name-$timestamp.cfg.yml")
+
+  if [ -n "$platform_arn" ]; then
+    dialog --title "EB CLI" \
+           --msgbox "Current Platform ARN:\n$platform_arn" 10 70
+    return 0
+  else
+    dialog --title "EB CLI: Error" \
+           --msgbox "Could not extract Platform ARN from configuration." 10 70
+    return 1
+  fi
 }
 
+# Extract current platform ARN from downloaded config
+extract_current_platform_arn() {
+  platform_arn=$(grep 'PlatformArn:' "$env_name-$timestamp.cfg.yml" | awk '{print $2}')
+
+  if [ -n "$platform_arn" ]; then
+    dialog --title "EB CLI" \
+           --msgbox "Current Platform ARN:\n$platform_arn" 10 70
+    return 0
+  else
+    dialog --title "EB CLI: Error" \
+           --msgbox "Could not extract Platform ARN from configuration." 10 70
+    return 1
+  fi
+}
 
 # Download configuration file from EB environment
 download_config() {
