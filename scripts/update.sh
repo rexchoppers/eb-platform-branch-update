@@ -34,7 +34,7 @@ extract_current_platform_arn() {
       }
       print val;
       exit
-    }' "$env_name-$timestamp.cfg.yml")
+    }' ".elasticbeanstalk/saved_configs/$env_name-$timestamp.cfg.yml")
 
     # Output to file for debugging
     echo "Extracted Platform ARN: $platform_arn" > debug_platform_arn.txt
