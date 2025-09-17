@@ -18,7 +18,13 @@ update() {
   configure_eb          || { home; return; }
   select_eb_environment || { home; return; }
   download_config     || { home; return; }
+  output_config || { home; return; }
 }
+
+output_config() {
+  cat "$env_name-$timestamp.cfg.yml"
+}
+
 
 # Download configuration file from EB environment
 download_config() {
