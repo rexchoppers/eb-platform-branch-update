@@ -20,19 +20,15 @@ update() {
   select_eb_environment || { home; return; }
   download_config     || { home; return; }
   extract_current_platform_arn || { home; return; }
-  select_new_platform_version || { home; return; }
+  select_new_platform_version # || { home; return; }
 }
 
-# Select new EB platform version
 select_new_platform_version() {
-  dialog --title "EB CLI" --infobox "Fetching available platform versions...\nPlease wait." 6 60
-  sleep 1
-
-  platform_versions=$(aws elasticbeanstalk list-platform-versions \
+  versions=$(AWS_PAGER="" aws elasticbeanstalk list-platform-versions \
     --query "PlatformSummaryList[].PlatformArn" \
-    --output text 2>/tmp/eb_versions_error)
+    --output json 2>/tmp/eb_versions_error)
 
-  if [ $? -ne 0 ] || [ -z "$platform_versions" ]; then
+  if [ $? -ne 0 ] || [ -z "$versions" ]; then
     dialog --title "EB CLI: Error" \
            --msgbox "Could not fetch platform versions.\n\n$(cat /tmp/eb_versions_error)" 12 70
     rm -f /tmp/eb_versions_error
@@ -40,20 +36,38 @@ select_new_platform_version() {
   fi
   rm -f /tmp/eb_versions_error
 
-  # Build menu
-  version_menu=()
-  while IFS= read -r version; do
-    version_menu+=("$version" "")
-  done <<< "$platform_versions"
+  # Parse JSON array into Bash array safely
+  mapfile -t version_array < <(echo "$versions" | jq -r '.[]')
 
-  new_platform_version=$(dialog --clear --stdout \
+  # Build menu items
+  version_menu=()
+  for version in "${version_array[@]}"; do
+    # Use the full ARN as the tag (unique), and a short readable name as the item
+    short_name=$(echo "$version" | awk -F'platform/' '{print $2}' | awk -F'/' '{print $1}')
+    version_menu+=("$version" "$short_name")
+  done
+
+  # Compute menu-height (visible items)
+  menu_height=${#version_menu[@]}
+  ((menu_height/=2))
+  ((menu_height>10)) && menu_height=10
+
+  selected_version=$(dialog --clear --stdout \
     --title "Select EB Platform Version" \
-    --menu "Choose a new Elastic Beanstalk platform version:" 20 90 15 \
+    --menu "Choose an Elastic Beanstalk Platform Version:" 20 80 "$menu_height" \
     "${version_menu[@]}") || return 1
 
-  dialog --title "EB CLI" --msgbox "Selected Platform Version:\n$new_platform_version" 10 70
+  dialog --title "EB CLI" --msgbox "Selected Platform Version:\n$selected_version" 8 70
   return 0
 }
+
+
+
+
+
+
+
+
 
 
 # Extract current platform ARN from downloaded config
