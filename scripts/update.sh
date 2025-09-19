@@ -20,7 +20,41 @@ update() {
   select_eb_environment || { home; return; }
   download_config     || { home; return; }
   extract_current_platform_arn || { home; return; }
+  select_new_platform_version || { home; return; }
 }
+
+# Select new EB platform version
+select_new_platform_version() {
+  dialog --title "EB CLI" --infobox "Fetching available platform versions...\nPlease wait." 6 60
+  sleep 1
+
+  platform_versions=$(aws elasticbeanstalk list-platform-versions \
+    --query "PlatformSummaryList[].PlatformArn" \
+    --output text 2>/tmp/eb_versions_error)
+
+  if [ $? -ne 0 ] || [ -z "$platform_versions" ]; then
+    dialog --title "EB CLI: Error" \
+           --msgbox "Could not fetch platform versions.\n\n$(cat /tmp/eb_versions_error)" 12 70
+    rm -f /tmp/eb_versions_error
+    return 1
+  fi
+  rm -f /tmp/eb_versions_error
+
+  # Build menu
+  version_menu=()
+  while IFS= read -r version; do
+    version_menu+=("$version" "")
+  done <<< "$platform_versions"
+
+  new_platform_version=$(dialog --clear --stdout \
+    --title "Select EB Platform Version" \
+    --menu "Choose a new Elastic Beanstalk platform version:" 20 90 15 \
+    "${version_menu[@]}") || return 1
+
+  dialog --title "EB CLI" --msgbox "Selected Platform Version:\n$new_platform_version" 10 70
+  return 0
+}
+
 
 # Extract current platform ARN from downloaded config
 extract_current_platform_arn() {
