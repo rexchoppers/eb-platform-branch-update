@@ -27,19 +27,10 @@ update() {
 confirm_update_choice() {
   choice=$(dialog --clear --stdout \
     --title "Confirm Update" \
-    --yesno "Current Platform ARN:\n$current_platform_arn\n\nNew Platform ARN:\n$selected_version\n\nDo you want to update the environment to the new platform version?" 15 70)
+    --yesno "Current Platform ARN:\n$current_platform_arn\n\nNew Platform ARN:\n$selected_version\n\nDo you want to update the environment configuration to the new platform version?" 15 70)
 
   if [ $? -eq 0 ]; then
-    dialog --title "EB CLI" --infobox "Updating environment $env_name to new platform version...\nPlease wait." 6 60
-    sleep 1
-
-    if output=$(eb upgrade "$env_name" --platform "$selected_version" 2>&1); then
-      dialog --title "EB CLI" --msgbox "Environment updated successfully.\n\n$output" 15 70
-      return 0
-    else
-      dialog --title "EB CLI: Error" --msgbox "Failed to update environment.\n\n$output" 15 70
-      return 1
-    fi
+    return 0
   else
     dialog --title "EB CLI" --msgbox "Update cancelled by user." 8 50
     return 1
