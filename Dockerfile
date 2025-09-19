@@ -6,7 +6,8 @@ RUN apk add --no-cache \
     aws-cli \
     dialog \
     bash \
-    jq
+    jq \
+    yq
 
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir awsebcli
