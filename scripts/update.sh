@@ -22,7 +22,10 @@ update() {
   extract_current_platform_arn || { home; return; }
   select_new_platform_version || { home; return; }
   confirm_update_choice || { home; return; }
+  update_config_file || { home; return; }
 }
+
+
 
 confirm_update_choice() {
   choice=$(dialog --clear --stdout \
