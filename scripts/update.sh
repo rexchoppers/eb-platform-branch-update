@@ -39,51 +39,20 @@ select_new_platform_version() {
   # Parse JSON array into Bash array safely
   mapfile -t version_array < <(echo "$versions" | jq -r '.[]')
 
-  # Build menu items: show only stripped name; selection maps to full ARN
-  declare -A version_map
-  declare -A seen
+  # Build menu items - show full ARN
   version_menu=()
-  for idx in "${!version_array[@]}"; do
-    full="${version_array[$idx]}"
-    # Human-readable name (without ARN prefix) — everything after ::platform/
-    name="${full##*::platform/}"
-
-    # Use the display name as the tag. Handle potential duplicates by appending a minimal suffix.
-    tag="$name"
-    if [[ -n "${seen[$tag]}" ]]; then
-      suffix=2
-      # Find a suffix that makes the tag unique
-      while [[ -n "${seen["$name ($suffix)"]}" ]]; do
-        ((suffix++))
-      done
-      tag="$name ($suffix)"
-      seen["$tag"]=1
-    else
-      seen["$tag"]=1
-    fi
-
-    version_map["$tag"]="$full"
-    # Use the same name as description so the dialog shows only the readable name.
-    version_menu+=("$tag" "$name")
+  for full in "${version_array[@]}"; do
+    version_menu+=("$full" "")
   done
 
-  # Compute menu-height
-  menu_height=${#version_array[@]}
-  ((menu_height>10)) && menu_height=10
-
-  selected_display=$(dialog --clear --stdout \
+  selected_version=$(dialog --clear --stdout \
     --title "Select EB Platform Version" \
-    --menu "Choose an Elastic Beanstalk Platform Version:" 20 120 "$menu_height" \
+    --menu "Choose an Elastic Beanstalk Platform Version:" 20 120 0 \
     "${version_menu[@]}") || return 1
-
-  # Map back to full ARN
-  selected_version="${version_map[$selected_display]}"
 
   dialog --title "EB CLI" --msgbox "Selected Platform Version:\n$selected_version" 8 120
   return 0
 }
-
-
 
 # Extract current platform ARN from downloaded config
 extract_current_platform_arn() {
