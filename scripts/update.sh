@@ -7,6 +7,7 @@ region=""
 app_name=""
 platform=""
 env_name=""
+config_name=""
 current_platform_arn=""
 
 timestamp=$(date +"%Y%m%d%H%M%S")
@@ -22,6 +23,7 @@ update() {
   extract_current_platform_arn || { home; return; }
   select_new_platform_version || { home; return; }
   confirm_update_choice || { home; return; }
+  config_name  || { home; return; }
   update_config_file || { home; return; }
 }
 
@@ -43,6 +45,22 @@ update_config_file() {
            --msgbox "Failed to update configuration file." 8 50
     return 1
   fi
+}
+
+prompt_config_name() {
+  config_name=$(dialog --title "EB CLI" \
+                       --inputbox "Enter a name for your new configuration:" 8 60 \
+                       3>&1 1>&2 2>&3)
+
+  # If user cancels, dialog returns non-zero
+  if [ $? -ne 0 ] || [ -z "$config_name" ]; then
+    dialog --title "EB CLI: Cancelled" \
+           --msgbox "Configuration name not provided. Aborting." 7 50
+    return 1
+  fi
+
+  echo "$config_name"
+  return 0
 }
 
 
