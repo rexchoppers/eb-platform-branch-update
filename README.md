@@ -25,12 +25,11 @@ You can then create a new environment using the new saved configuration.
 ## Requirements
 - Docker
 
-To ensure a consistent environment, using the provided Dockerfile is recommended.
+It is recommended to run this tool in a Docker container to avoid installing dependencies on your local machine.
 
-## TODO
-
-- Deploy image
-- Run with Docker
+## Running the Tool
+1. Pull the Docker image or build it locally. `docker pull ghcr.io/rexchoppers/eb-platform-branch-update:latest` or `docker build -t eb-platform-branch-update .`
+2. Run the container interactively: `docker run -it --rm eb-platform-branch-update`
 
 ## Links
 - Contributing: see `CONTRIBUTING.md`
