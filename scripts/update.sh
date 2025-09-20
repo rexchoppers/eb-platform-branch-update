@@ -23,7 +23,7 @@ update() {
   extract_current_platform_arn || { home; return; }
   select_new_platform_version || { home; return; }
   confirm_update_choice || { home; return; }
-  prompt_config_name
+  prompt_config_name || { home; return; }
   update_config_file || { home; return; }
 }
 
