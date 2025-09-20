@@ -8,6 +8,7 @@ app_name=""
 platform=""
 env_name=""
 config_name=""
+selected_version=""
 current_platform_arn=""
 
 timestamp=$(date +"%Y%m%d%H%M%S")
@@ -27,18 +28,22 @@ update() {
   update_config_file || { home; return; }
 }
 
-# Regex replace in config file
+# Update config file with new platform version
 update_config_file() {
-  config_file=".elasticbeanstalk/saved_configs/$env_name-$timestamp.cfg.yml"
-  backup_file="$config_file.bak"
+  source_file=".elasticbeanstalk/saved_configs/$env_name-$timestamp.cfg.yml"
+  config_file=".elasticbeanstalk/saved_configs/$config_name.cfg.yml"
 
-  # Create a backup first
-  cp "$config_file" "$backup_file"
+  # Copy the existing file to the new name
+  if ! cp "$source_file" "$config_file"; then
+    dialog --title "EB CLI: Error" \
+           --msgbox "Failed to copy configuration file." 8 50
+    return 1
+  fi
 
   # Update PlatformArn with yq
   if yq -i ".Platform.PlatformArn = \"$selected_version\"" "$config_file"; then
     dialog --title "EB CLI" \
-           --msgbox "Configuration file updated successfully.\n\nBackup created: $(basename "$backup_file")" 10 70
+           --msgbox "Configuration file updated successfully.\n\nFile: $config_name.cfg.yml" 10 70
     return 0
   else
     dialog --title "EB CLI: Error" \
