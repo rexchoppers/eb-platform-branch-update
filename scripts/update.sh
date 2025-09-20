@@ -15,6 +15,7 @@ timestamp=$(date +"%Y%m%d%H%M%S")
 
 # Master flow
 update() {
+  init || { home; return; }
   configure_aws        || { home; return; }
   select_eb_application || { home; return; }
   select_eb_platform    || { home; return; }
@@ -26,6 +27,34 @@ update() {
   confirm_update_choice || { home; return; }
   prompt_config_name || { home; return; }
   update_config_file || { home; return; }
+  push_config_file || { home; return; }
+}
+
+# Reset all variables
+init() {
+  access_key_id=""
+  secret_access_key=""
+  region=""
+  app_name=""
+  platform=""
+  env_name=""
+  config_name=""
+  selected_version=""
+  current_platform_arn=""
+  timestamp=$(date +"%Y%m%d%H%M%S")
+  return 0
+}
+
+push_config_file() {
+  if output=$(eb config put "$config_name" 2>&1); then
+    dialog --title "EB CLI" \
+           --msgbox "Configuration pushed successfully to Elastic Beanstalk.\n\n$output" 15 70
+    return 0
+  else
+    dialog --title "EB CLI: Error" \
+           --msgbox "Failed to push configuration.\n\n$output" 15 70
+    return 1
+  fi
 }
 
 # Update config file with new platform version
