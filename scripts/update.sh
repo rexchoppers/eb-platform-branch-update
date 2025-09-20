@@ -23,7 +23,7 @@ update() {
   extract_current_platform_arn || { home; return; }
   select_new_platform_version || { home; return; }
   confirm_update_choice || { home; return; }
-  config_name  || { home; return; }
+  prompt_config_name
   update_config_file || { home; return; }
 }
 
@@ -59,7 +59,6 @@ prompt_config_name() {
     return 1
   fi
 
-  echo "$config_name"
   return 0
 }
 
