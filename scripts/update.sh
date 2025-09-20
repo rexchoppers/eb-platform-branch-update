@@ -28,6 +28,7 @@ update() {
   prompt_config_name || { home; return; }
   update_config_file || { home; return; }
   push_config_file || { home; return; }
+  end
 }
 
 # Reset all variables
@@ -43,6 +44,10 @@ init() {
   current_platform_arn=""
   timestamp=$(date +"%Y%m%d%H%M%S")
   return 0
+}
+
+end() {
+  home
 }
 
 push_config_file() {
