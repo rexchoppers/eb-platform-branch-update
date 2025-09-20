@@ -3,7 +3,7 @@
 Interactive terminal tool to help you update the Platform Branch for an AWS Elastic Beanstalk environment by generating and pushing a new saved configuration template. It uses a simple TUI (dialog) to guide you through selecting the application, platform, environment, and target platform version.
 
 ## History
-Elastic Beanstalk environments are tied to a specific platform version (e.g., "64bit Amazon Linux 2 v3.4.10 running Python 3.8"). AWS periodically releases new platform versions, including security updates and new features. However, if you need to update the Platform Branch, you must create a new environment or manually change the platform version via the EB Console or EB CLI.
+Elastic Beanstalk environments are tied to a specific platform version (e.g., "64bit Amazon Linux 2 v3.4.10 running Python 3.8"). AWS periodically releases new platform versions, including security updates and new features. However, if you need to update the Platform Branch (e.g PHP 7.4 -> PHP 8.0), you must create a new environment or manually change the platform version via the EB Console or EB CLI.
 
 This requires cloning and re-configuring the environment, which can be error-prone and time-consuming. This tool simplifies the process by automating the creation of a new saved configuration with the updated PlatformArn, which you can then apply to your environment.
 
