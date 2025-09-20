@@ -32,9 +32,6 @@ To ensure a consistent environment, using the provided Dockerfile is recommended
 - Deploy image
 - Run with Docker
 
-Notes:
-- The container launches the TUI automatically (CMD runs `bash main.sh`).
-
 ## Links
 - Contributing: see `CONTRIBUTING.md`
 - Changelog: see `CHANGELOG.md`
